@@ -1,0 +1,32 @@
+{
+  "THIS_IS_FOR_DEMO_PURPOSES": "SORRY_1337_H4X0RS",
+  "aws_access_key_id": "AKIA6KJQR5EG25KTYHEV",
+  "aws_secret_access_key": "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",
+  "id": "f4e23cf0-2f78-4077-8ad8-cbb2d563985f",
+  "name": "Wiz Environment Variables",
+  "values": [
+    {
+      "key": "CLIENT_ID",
+      "value": "gDPy8jPAizfmqB$?T",
+      "enabled": true
+    },
+    {
+      "key": "CLIENT_SECRET",
+      "value": "De7A5C@F8rp#oHCsE6?Gd@8fQ$yMEq4tn9h!AB?p",
+      "enabled": true
+    },
+    {
+      "key": "endpoint_url",
+      "value": "https://api.demo.wiz.io/graphql",
+      "enabled": true
+    },
+    {
+      "key": "access_token",
+      "value": "",
+      "enabled": true
+    }
+  ],
+  "_postman_variable_scope": "environment",
+  "_postman_exported_at": "2021-06-20T12:07:37.831Z",
+  "_postman_exported_using": "Postman/8.3.0"
+}
