@@ -1,0 +1,33 @@
+name: Update Pull Requests
+
+on:
+  schedule:
+    - cron: "0 7 * * *"
+
+permissions:
+  contents: write
+
+jobs:
+  update-pull-requests:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        pull-request-branch: ["iac-scan", "vuln-scan"]
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Git
+        run: |
+          git config --global user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git config --global user.name "github-actions[bot]"
+
+      - name: Checkout Branch
+        run: git checkout ${{ matrix.pull-request-branch }}
+
+      - name: Amend Commit
+        run: |
+          git commit --amend -m "$(git log -1 --pretty=%B | cat)"
+          git push origin ${{ matrix.pull-request-branch }} -f
