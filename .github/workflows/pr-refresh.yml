@@ -2,7 +2,7 @@ name: Update Pull Requests
 
 on:
   schedule:
-    - cron: "0 7 * * *"
+    - cron: "0 7 * * 6"
 
 permissions:
   contents: write
