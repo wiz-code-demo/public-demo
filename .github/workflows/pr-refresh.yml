@@ -12,7 +12,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        pull-request-branch: ["iac-scan", "vuln-scan"]
+        pull-request-branch: ["iac-scan", "secret-scan", "vuln-scan"]
     steps:
       - name: Checkout
         uses: actions/checkout@v4
