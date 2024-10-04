@@ -1,5 +1,5 @@
 # Public Demo
 
-This is a repository to demonstrate the scanning and correlation capablities of the Wiz platform.
+This is a repository to demonstrate the scanning and correlation capabilities of the Wiz platform.
 
-**_This repo is for demo purposes. All secret keys and sensitive data are fake._**
+**_This repo is for demo purposes only. All secret keys and sensitive data are fake._**
