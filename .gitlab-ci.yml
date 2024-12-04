@@ -2,6 +2,7 @@ image: debian:latest
 
 variables:
   GIT_DEPTH: 0
+  GITLAB_ADVANCED_SAST_ENABLED: "true"
 
 default:
   before_script:
@@ -9,8 +10,11 @@ default:
 
 stages:
   - pr-refresh
+  - test
 
 pr-refresh:
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "schedule"
   parallel:
     matrix:
       - BRANCH_NAME: iac-scan
@@ -25,3 +29,8 @@ pr-refresh:
     - git commit --amend -m "$(git log -1 --pretty=%B | cat)"
     - git remote set-url --push origin "https://$TOKEN_NAME:$ACCESS_TOKEN@gitlab.com/wizdemo1/public-demo.git"
     - git push origin $BRANCH_NAME -f
+
+sast:
+  stage: test
+include:
+  - template: Security/SAST.gitlab-ci.yml
