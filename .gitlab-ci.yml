@@ -9,10 +9,12 @@ default:
     - apt update && apt install git -y
 
 stages:
+  - build-scan-push-tag
   - pr-refresh
   - test
 
 pr-refresh:
+  stage: pr-refresh
   rules:
     - if: $CI_PIPELINE_SOURCE == "schedule"
   parallel:
@@ -21,7 +23,6 @@ pr-refresh:
       - BRANCH_NAME: secret-scan
       - BRANCH_NAME: vuln-scan
 
-  stage: pr-refresh
   script:
     - git config --global user.email "no-reply@wiz.io"
     - git config --global user.name "Wiz[Automation]"
@@ -29,6 +30,33 @@ pr-refresh:
     - git commit --amend -m "$(git log -1 --pretty=%B | cat)"
     - git remote set-url --push origin "https://$TOKEN_NAME:$ACCESS_TOKEN@gitlab.com/wizdemo1/public-demo.git"
     - git push origin $BRANCH_NAME -f
+
+build-scan-push-tag:
+  stage: build-scan-push-tag
+  image: docker:latest
+  services:
+    - docker:dind
+  variables:
+    DOCKER_HOST: tcp://docker:2376
+    DOCKER_TLS_CERTDIR: "/certs"
+  parallel:
+    matrix:
+      - IMAGE_NAME: sast-demo
+        DOCKERFILE_PATH: ./sast-demo
+  rules:
+    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
+      changes:
+        - $DOCKERFILE_PATH/**/*
+  before_script:
+    - apk update && apk add curl
+    - curl --silent -o wizcli https://wizcli.app.wiz.io/latest/wizcli-linux-amd64 && chmod +x wizcli
+    - ./wizcli auth
+  script:
+    - docker build $DOCKERFILE_PATH --tag $IMAGE_REGISTRY/$IMAGE_NAME:$IMAGE_TAG
+    - ./wizcli docker scan --image $IMAGE_REGISTRY/$IMAGE_NAME:$IMAGE_TAG -p "no-fail-vuln-policy" --dockerfile "$DOCKERFILE_PATH/Dockerfile"
+    - docker login -u $REGISTRY_USERNAME -p $REGISTRY_PASSWORD $IMAGE_REGISTRY
+    - docker push $IMAGE_REGISTRY/$IMAGE_NAME:$IMAGE_TAG
+    - ./wizcli docker tag -S -i $IMAGE_REGISTRY/$IMAGE_NAME:$IMAGE_TAG
 
 sast:
   stage: test
