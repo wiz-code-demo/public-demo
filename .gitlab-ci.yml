@@ -45,8 +45,8 @@ build-scan-push-tag:
         DOCKERFILE_PATH: ./sast-demo
   rules:
     - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
-      changes:
-        - $DOCKERFILE_PATH/**/*
+    #- changes:
+    #    - sast-demo/**/*
   before_script:
     - apk update && apk add curl
     - curl --silent -o wizcli https://wizcli.app.wiz.io/latest/wizcli-linux-amd64 && chmod +x wizcli
