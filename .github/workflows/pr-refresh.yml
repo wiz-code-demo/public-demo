@@ -1,6 +1,7 @@
 name: Update Pull Requests
 
 on:
+  workflow_dispatch:
   schedule:
     - cron: "0 7 * * 6"
 
@@ -9,6 +10,7 @@ permissions:
 
 jobs:
   update-pull-requests:
+    if: github.repository == 'wiz-code-demo/public-demo'
     runs-on: ubuntu-latest
     strategy:
       matrix:
