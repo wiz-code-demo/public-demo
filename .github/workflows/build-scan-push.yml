@@ -18,7 +18,7 @@ jobs:
       matrix:
         include:
           - dockerfile: ./sast-demo
-            image: ${{ vars.IMAGE_REGISTRY }}/sast-demo
+            image: ${{ vars.IMAGE_REGISTRY }}/${{ vars.IMAGE_NAME }}:${{ vars.IMAGE_TAG }}
 
     steps:
       - name: Checkout
@@ -59,16 +59,16 @@ jobs:
           context: ${{ matrix.dockerfile }}
           platforms: linux/amd64,linux/arm64
           push: true
-          tags: ${{ steps.meta.outputs.tags }}
+          tags: ${{ matrix.image }}
           labels: ${{ steps.meta.outputs.labels }}
 
       - name: Integrate CI data with Wiz
         run: |
-          docker pull ${{ steps.meta.outputs.tags }}
+          docker pull ${{ matrix.image }}
           if [[ ! -z "${{ vars.WIZ_ENV }}" && "${{ vars.WIZ_ENV }}" != "app" ]]; then export WIZ_ENV=${{ vars.WIZ_ENV }}; fi
           curl -Lo wizcli https://wizcli.app.wiz.io/latest/wizcli-linux-amd64
           chmod +x wizcli
           ./wizcli auth --id "${{ secrets.WIZ_CLIENT_ID }}" --secret "${{ secrets.WIZ_CLIENT_SECRET }}"
-          ./wizcli docker scan --image ${{ steps.meta.outputs.tags }} --dockerfile "${{ matrix.dockerfile }}/Dockerfile"
-          ./wizcli docker tag --image ${{ steps.meta.outputs.tags }}
+          ./wizcli docker scan --image ${{ matrix.image }} --dockerfile "${{ matrix.dockerfile }}/Dockerfile"
+          ./wizcli docker tag --image ${{ matrix.image }}
         continue-on-error: true

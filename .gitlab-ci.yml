@@ -16,7 +16,7 @@ stages:
 pr-refresh:
   stage: pr-refresh
   rules:
-    - if: $CI_PIPELINE_SOURCE == "schedule"
+    - if: $CI_PIPELINE_SOURCE == "schedule" && $CI_PROJECT_PATH == "wizdemo1/public-demo"
   parallel:
     matrix:
       - BRANCH_NAME: iac-scan
@@ -41,7 +41,7 @@ build-scan-push-tag:
     DOCKER_TLS_CERTDIR: "/certs"
   parallel:
     matrix:
-      - IMAGE_NAME: sast-demo
+      - IMAGE_NAME: $IMAGE_NAME
         DOCKERFILE_PATH: ./sast-demo
   rules:
     - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
@@ -54,7 +54,7 @@ build-scan-push-tag:
   script:
     - docker build $DOCKERFILE_PATH --tag $IMAGE_REGISTRY/$IMAGE_NAME:$IMAGE_TAG
     - ./wizcli docker scan --image $IMAGE_REGISTRY/$IMAGE_NAME:$IMAGE_TAG -p "no-fail-vuln-policy" --dockerfile "$DOCKERFILE_PATH/Dockerfile"
-    - docker login -u $REGISTRY_USERNAME -p $REGISTRY_PASSWORD $IMAGE_REGISTRY
+    - docker login -u $IMAGE_REGISTRY_USERNAME -p $IMAGE_REGISTRY_PASSWORD $IMAGE_REGISTRY
     - docker push $IMAGE_REGISTRY/$IMAGE_NAME:$IMAGE_TAG
     - ./wizcli docker tag -S -i $IMAGE_REGISTRY/$IMAGE_NAME:$IMAGE_TAG
 
