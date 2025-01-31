@@ -53,7 +53,7 @@ build-scan-push-tag:
     - ./wizcli auth
   script:
     - docker build $DOCKERFILE_PATH --tag $IMAGE_REGISTRY/$IMAGE_NAME:$IMAGE_TAG
-    - ./wizcli docker scan --image $IMAGE_REGISTRY/$IMAGE_NAME:$IMAGE_TAG -p "no-fail-vuln-policy" --dockerfile "$DOCKERFILE_PATH/Dockerfile"
+    - ./wizcli docker scan --image $IMAGE_REGISTRY/$IMAGE_NAME:$IMAGE_TAG --dockerfile "$DOCKERFILE_PATH/Dockerfile"
     - docker login -u $IMAGE_REGISTRY_USERNAME -p $IMAGE_REGISTRY_PASSWORD $IMAGE_REGISTRY
     - docker push $IMAGE_REGISTRY/$IMAGE_NAME:$IMAGE_TAG
     - ./wizcli docker tag -S -i $IMAGE_REGISTRY/$IMAGE_NAME:$IMAGE_TAG
