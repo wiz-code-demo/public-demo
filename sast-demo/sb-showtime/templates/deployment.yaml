@@ -34,16 +34,30 @@ spec:
             {{- toYaml .Values.securityContext | nindent 12 }}
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
           imagePullPolicy: {{ .Values.image.pullPolicy }}
-          resources:
-            {{- toYaml .Values.resources | nindent 12 }}
-          {{- with .Values.volumeMounts }}
-          volumeMounts:
+          {{- with .Values.env }}
+          env:
             {{- toYaml . | nindent 12 }}
           {{- end }}
-      {{- with .Values.volumes }}
+          resources:
+            {{- toYaml .Values.resources | nindent 12 }}
+          volumeMounts:
+            {{- if .Values.configMapFile.enabled }}
+            - name: {{ .Values.configMapFile.volumeName }}
+              mountPath: {{ .Values.configMapFile.mountPath }}
+              subPath: config.json
+            {{- end }}
+            {{- with or .Values.volumeMounts }}
+              {{- toYaml . | nindent 12 }}
+            {{- end }}
       volumes:
-        {{- toYaml . | nindent 8 }}
-      {{- end }}
+        {{- with or .Values.volumes }}
+          {{- toYaml . | nindent 8 }}
+        {{- end }}
+        {{- if .Values.configMapFile.enabled }}
+        - name: {{ .Values.configMapFile.volumeName }}
+          configMap:
+            name: {{ include "sb-showtime.fullname" . }}
+        {{- end }}
       {{- with .Values.nodeSelector }}
       nodeSelector:
         {{- toYaml . | nindent 8 }}

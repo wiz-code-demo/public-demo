@@ -1,0 +1,15 @@
+{{- if .Values.service.enabled }}
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "sb-showtime.fullname" . }}
+  labels: {{- include "sb-showtime.labels" . | nindent 4 }}
+spec:
+  type: {{ .Values.service.type }}
+  ports:
+    - port: {{ .Values.service.port }}
+      targetPort: {{ .Values.service.targetPort }}
+      protocol: TCP
+      name: http
+  selector: {{- include "sb-showtime.selectorLabels" . | nindent 4 }}
+{{- end -}}

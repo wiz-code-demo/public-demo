@@ -1,0 +1,11 @@
+{{- if .Values.configMapFile.enabled }}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "sb-showtime.fullname" . }}
+  labels: {{- include "sb-showtime.labels" . | nindent 4 }}
+  namespace: {{ .Release.Namespace }}
+data:
+  config.json: |
+    {{ coalesce .Values.configMapFile.data "" | toJson }}
+{{- end -}}
