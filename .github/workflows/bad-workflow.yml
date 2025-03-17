@@ -1,0 +1,23 @@
+name: "tj-changed-files-analysis"
+
+on:
+  pull_request:
+
+permissions:
+  pull-requests: read
+
+jobs:
+  check_diff:
+    runs-on: ubuntu-latest
+    name: Whats changed
+      
+    steps:
+      - name: Checkout code
+      - uses: actions/checkout@v4
+
+      - name: Get changed files
+        id: changed-files
+        uses: tj-actions/changed-files@v44
+
+      - name: Print changed files
+        run: echo "Changed files: ${{ steps.changed-files.outputs.all_changed_files }}"
