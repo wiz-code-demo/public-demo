@@ -1,0 +1,12 @@
+# Wiz File to Ignore Findings
+# Reference: https://docs.wiz.io/wiz-docs/docs/how-vcs-connectors-work?lng=en#excluding-findings
+
+ignore:
+  vulnerabilities:
+    CVE-2023-7080:
+      demo-app/application/package-lock.json:
+        reason: EXCEPTION
+        expires: 2025-08-01T00:00:00Z
+
+    ALL:
+      /demo-app/data/**/*: {}
