@@ -1,0 +1,49 @@
+name: Wiz CLI Directory Scan
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+  schedule:
+    - cron: "0 3 */7 * *"
+
+permissions:
+  contents: read
+  security-events: write
+
+jobs:
+  Wiz-Directory-Scan:
+    runs-on: ubuntu-latest
+    env:
+      WIZ_CLIENT_ID: ${{ secrets.WIZ_CLIENT_ID }}
+      WIZ_CLIENT_SECRET: ${{ secrets.WIZ_CLIENT_SECRET }}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set Wiz Environment Variables
+        run: |
+          if [[ ! -z "${{ vars.WIZ_ENV }}" && "${{ vars.WIZ_ENV }}" != "app" ]]; then echo "WIZ_ENV=${{ vars.WIZ_ENV }}" >> $GITHUB_ENV; fi
+
+      - name: Download Wiz CLI
+        run: curl -o wizcli https://wizcli.app.wiz.io/latest/wizcli && chmod +x wizcli
+
+      - name: Authenticate to Wiz
+        run: ./wizcli auth
+
+      - name: Run Wiz CLI Directory Scan
+        run: |-
+          ./wizcli dir scan --path "." \
+          --tag github_action_run_id=${{ github.run_id }} -o wiz-output.json,sarif,true \
+          --sbom-format spdx-json --sbom-output-file sbom.json
+
+      - name: Upload SARIF file
+        uses: github/codeql-action/upload-sarif@v3
+        with:
+          sarif_file: wiz-output.json
+          category: wiz-dir
