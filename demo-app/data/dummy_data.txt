@@ -1,4 +1,5 @@
 id,first_name,last_name,email,gender,ip_address,credit_card
+0,Shogo,Katsurada,shogo.katsurada@wiz.io,Male,10.10.10.10,11111111111111
 1,Traver,Scroyton,tscroyton0@cocolog-nifty.com,Male,177.133.118.224,5241458602717439
 2,Salem,Byatt,sbyatt1@tinypic.com,Male,138.233.100.74,376936969983148
 3,Daphene,Tissiman,dtissiman2@networkadvertising.org,Female,65.127.16.42,4041379314849341
