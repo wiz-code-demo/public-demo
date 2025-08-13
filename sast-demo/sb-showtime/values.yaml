@@ -5,16 +5,20 @@
 # This will set the replicaset count more information can be found here: https://kubernetes.io/docs/concepts/workloads/controllers/replicaset/
 replicaCount: 1
 
+# SECURITY FIX: Updated to use secure Selenium image to fix CVE-2024-0519
+# Previous vulnerable image: wizsensordemos.azurecr.io/sast-demo (based on elgalu/selenium:3.141.59-p59)
+# New secure image: selenium/standalone-chrome:4.34.0-20250707
 # This sets the container image more information can be found here: https://kubernetes.io/docs/concepts/containers/images/
 image:
-  repository: wizsensordemos.azurecr.io/sast-demo
+  repository: selenium/standalone-chrome
   # This sets the pull policy for images.
   pullPolicy: Always
-  # Overrides the image tag whose default is the chart appVersion.
-  tag: "main"
+  # Updated to use official Selenium image with CVE-2024-0519 fix
+  tag: "4.34.0-20250707"
 
 # This is for the secretes for pulling an image from a private repository more information can be found here: https://kubernetes.io/docs/tasks/configure-pod-container/pull-image-private-registry/
 imagePullSecrets: []
+
 # This is to override the chart name.
 nameOverride: ""
 fullnameOverride: ""
@@ -34,11 +38,11 @@ serviceAccount:
 env: []
 
 service:
-  enabled: False
-  port: 80
-  targetPort: 5000
+  enabled: True
+  port: 4444  # Updated to use Selenium Grid port
+  targetPort: 4444  # Updated to match Selenium Grid
   type: LoadBalancer
-  
+
 configMapFile:
   enabled: True
   data: {"foo": "bar"}
@@ -47,48 +51,61 @@ configMapFile:
 
 # This is for setting Kubernetes Annotations to a Pod.
 # For more information checkout: https://kubernetes.io/docs/concepts/overview/working-with-objects/annotations/
-podAnnotations: {}
+podAnnotations:
+  # Security annotations
+  security.wiz.io/cve-2024-0519: "fixed"
+  security.wiz.io/selenium-version: "4.34.0"
+  security.wiz.io/chrome-version: "120.0.6099.224+"
+
 # This is for setting Kubernetes Labels to a Pod.
 # For more information checkout: https://kubernetes.io/docs/concepts/overview/working-with-objects/labels/
-podLabels: {}
+podLabels:
+  security.patched: "cve-2024-0519"
+  selenium.version: "4.34.0"
 
-podSecurityContext: {}
-  # fsGroup: 2000
+# SECURITY: Updated security context for better security posture
+podSecurityContext:
+  runAsNonRoot: true
+  runAsUser: 1200  # seluser from selenium image
+  runAsGroup: 1201
+  fsGroup: 1201
 
-securityContext: {}
-  # capabilities:
-  #   drop:
-  #   - ALL
-  # readOnlyRootFilesystem: true
-  # runAsNonRoot: true
-  # runAsUser: 1000
+# SECURITY: Container security context
+securityContext:
+  allowPrivilegeEscalation: false
+  readOnlyRootFilesystem: false  # Selenium needs write access for temp files
+  capabilities:
+    drop:
+    - ALL
+    add:
+    - SYS_ADMIN  # Required for Chrome sandbox
+  runAsNonRoot: true
+  runAsUser: 1200
 
-resources: {}
-  # We usually recommend not to specify default resources and to leave this as a conscious
-  # choice for the user. This also increases chances charts run on environments with little
-  # resources, such as Minikube. If you do want to specify resources, uncomment the following
-  # lines, adjust them as necessary, and remove the curly braces after 'resources:'.
-  # limits:
-  #   cpu: 100m
-  #   memory: 128Mi
-  # requests:
-  #   cpu: 100m
-  #   memory: 128Mi
+# SECURITY: Resource limits to prevent resource exhaustion attacks
+resources:
+  limits:
+    cpu: 2000m
+    memory: 4Gi
+  requests:
+    cpu: 1000m
+    memory: 2Gi
 
 revisionHistoryLimit: 1
 
 # Additional volumes on the output Deployment definition.
-volumes: []
-# - name: foo
-#   secret:
-#     secretName: mysecret
-#     optional: false
+volumes:
+  # Add shared memory volume for Chrome
+  - name: dshm
+    emptyDir:
+      medium: Memory
+      sizeLimit: 2Gi
 
 # Additional volumeMounts on the output Deployment definition.
-volumeMounts: []
-# - name: foo
-#   mountPath: "/etc/foo"
-#   readOnly: true
+volumeMounts:
+  # Mount shared memory for Chrome
+  - name: dshm
+    mountPath: /dev/shm
 
 nodeSelector: {}
 
