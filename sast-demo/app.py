@@ -38,7 +38,7 @@ def limit_remote_addr():
 def direct_inject():
     exec_param = request.args.get("exec")
     process = subprocess.Popen(
-        exec_param, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        exec_param, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)  # testing
     stdout = process.stdout.read().decode()
     stderr = process.stderr.read().decode()
 
