@@ -74,3 +74,12 @@ jobs:
           ./wizcli docker scan --image ${{ matrix.image }} --dockerfile "${{ matrix.dockerfile }}/Dockerfile"
           ./wizcli docker tag --image ${{ matrix.image }}
         continue-on-error: true
+
+      - name: Integrate CI data with Wiz CSA Test Environment
+        run: |
+          export WIZ_ENV=test
+          ./wizcli auth --logout
+          ./wizcli auth --id "${{ secrets.CSA_TEST_CLIENT_ID }}" --secret "${{ secrets.CSA_TEST_CLIENT_SECRET }}"
+          ./wizcli docker scan --image ${{ matrix.image }} --dockerfile "${{ matrix.dockerfile }}/Dockerfile" -p no-fail-vuln-policy
+          ./wizcli docker tag --image ${{ matrix.image }}
+        continue-on-error: true
