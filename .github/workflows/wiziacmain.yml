@@ -26,4 +26,4 @@ jobs:
         env:
           WIZ_CLIENT_ID: ${{ secrets.WIZ_CLIENT_ID }}
           WIZ_CLIENT_SECRET: ${{ secrets.WIZ_CLIENT_SECRET }}
-        run: ./wizcli scan dir $SCAN_PATH --policies "$POLICY"
+        run: ./wizcli scan dir $SCAN_PATH --policies "Fabrizia_CICD"
