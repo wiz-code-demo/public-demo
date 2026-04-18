@@ -1,0 +1,32 @@
+name: Wiz CLI Security Scan
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+  wiz-security-scan:
+    name: Run Wiz CLI
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Download Wiz CLI
+        # Downloads the latest Linux amd64 binary directly from Wiz.
+        run: |
+          curl -L -o wizcli https://downloads.wiz.io/wizcli/latest/wizcli-linux-amd64
+          chmod +x wizcli
+
+      - name: Authenticate with Wiz
+        env:
+          WIZ_CLIENT_ID: ${{ secrets.WIZ_CLIENT_ID }}
+          WIZ_CLIENT_SECRET: ${{ secrets.WIZ_CLIENT_SECRET }}
+        run: ./wizcli auth --id "$WIZ_CLIENT_ID" --secret "$WIZ_CLIENT_SECRET"
+
+      - name: Run Wiz Directory Scan
+        # Scans the current directory for vulnerabilities, exposed secrets, and IaC misconfigurations
+        run: ./wizcli dir scan --path .
