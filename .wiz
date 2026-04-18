@@ -1,0 +1,4 @@
+ignore:
+  global_paths:
+    demo-app/exception-example/**:
+      reason: EXCEPTION
